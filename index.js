@@ -103,7 +103,7 @@ async function main() {
       text: input.value,
       timestamp: Date.now(),
       name: auth.currentUser.displayName,
-      userId: auth.currentUser.uid,
+      userId: auth.currentUser.uid, 
     });
     // clear message input field
     input.value = '';
