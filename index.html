@@ -24,36 +24,33 @@
     />
 
     <section id="event-details-container">
-      <h1>Firebase Treffen</h1>
-
+      <h1>Pluto 23</h1>
       <p><i class="material-icons">calendar_today</i> October 30</p>
-      <p><i class="material-icons">location_city</i> San Francisco</p>
-      <button id="startRsvp">RSVP</button>
+      <button id="buSignIn">Sign In</button>
+      <button id="buSignOut">Sign Out</button>
+      <button id="buManageAccount">Manage Account</button>
+      <button id="buPost">Post</button>
     </section>
 
     <hr />
 
     <section id="firebaseui-auth-container"></section>
 
-    <section id="description-container">
-      <h2>What we'll be doing</h2>
-      <p>Join us for a day full of Firebase Workshops and Pizza!</p>
-    </section>
 
     <section id="guestbook-container">
-    <h2>Discussion</h2>
+      <form id="leave-message">
+        <label>Title </label>
+        <input type="text" id="title" /></br>
+        <label>Post </label>
+        <input type="text" id="body" />
+        <br>
+        <button type="submit" id="buSubmit">
+          <i class="material-icons">send</i>
+          <span>SEND</span>
+        </button>
+      </form>
 
-    <form id="leave-message">
-      <label>Leave a message: </label>
-      <input type="text" id="message">
-      <button type="submit">
-        <i class="material-icons">send</i>
-        <span>SEND</span>
-      </button>
-    </form>
-
-    <section id="guestbook"></section>
-    
+      <section id="postSection"></section>
     </section>
   </div>
 </body>

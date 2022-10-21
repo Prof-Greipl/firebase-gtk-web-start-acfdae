@@ -1,7 +1,7 @@
 // Import stylesheets
 import './style.css';
 // Firebase App (the core Firebase SDK) is always required
-import { initializeApp } from 'firebase/app';
+import { initializeApp, firebase } from 'firebase/app';
 
 // Add the Firebase products and methods that you want to use
 import {
@@ -27,11 +27,15 @@ const startRsvpButton = document.getElementById('startRsvp');
 const guestbookContainer = document.getElementById('guestbook-container');
 
 const form = document.getElementById('leave-message');
-const input = document.getElementById('message');
-const guestbook = document.getElementById('guestbook');
-const numberAttending = document.getElementById('number-attending');
-const rsvpYes = document.getElementById('rsvp-yes');
-const rsvpNo = document.getElementById('rsvp-no');
+const title = document.getElementById('title');
+const body = document.getElementById('body');
+const postSection = document.getElementById('postSection');
+
+const buSignIn = document.getElementById('buSignIn');
+const buSignOut = document.getElementById('buSignOut');
+const buPost = document.getElementById('buPost');
+const buManageAccount = document.getElementById('buManageAccount');
+const buSubmit = document.getElementById('buSubmit');
 
 let rsvpListener = null;
 let guestbookListener = null;
@@ -41,14 +45,13 @@ let db, auth;
 async function main() {
   // Add Firebase project configuration object here
   const firebaseConfig = {
-    apiKey: 'AIzaSyDW35Ja8-rhHVbN5T4z8_aSvG7xJJ56Ze4',
-    authDomain: 'pluto23-5e5aa.firebaseapp.com',
-    databaseURL: 'https://pluto23-5e5aa-default-rtdb.firebaseio.com',
-    projectId: 'pluto23-5e5aa',
-    storageBucket: 'pluto23-5e5aa.appspot.com',
-    messagingSenderId: '711957754265',
-    appId: '1:711957754265:web:1e9059f77188ed1a2e6308',
-    measurementId: 'G-JJGMKWS2E9',
+    apiKey: 'AIzaSyD1M3cwjvRdl-JpC4RoR8JStjKOOi7kdkE',
+    authDomain: 'pluto22-gkw.firebaseapp.com',
+    databaseURL: 'https://pluto22-gkw-default-rtdb.firebaseio.com',
+    projectId: 'pluto22-gkw',
+    storageBucket: 'pluto22-gkw.appspot.com',
+    messagingSenderId: '84704125590',
+    appId: '1:84704125590:web:0eafedfc271c4c86db98b7',
   };
 
   initializeApp(firebaseConfig);
@@ -74,7 +77,19 @@ async function main() {
 
   const ui = new firebaseui.auth.AuthUI(auth);
 
-  startRsvpButton.addEventListener('click', () => {
+  // Event Listener for Buttons
+
+  buSignIn.addEventListener('click', () => {
+    if (auth.currentUser) {
+      // User is signed in; allows user to sign out
+      signOut(auth);
+    } else {
+      // No user is signed in; allows user to sign in
+      ui.start('#firebaseui-auth-container', uiConfig);
+    }
+  });
+
+  buSignOut.addEventListener('click', () => {
     if (auth.currentUser) {
       // User is signed in; allows user to sign out
       signOut(auth);
@@ -86,11 +101,15 @@ async function main() {
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      startRsvpButton.textContent = 'LOGOUT';
-      guestbookContainer.style.display = 'block';
+      console.log('onAuthStateChanged: User present');
+      buSignOut.style.display = 'block';
+      buSignIn.style.display = 'none';
+      buManageAccount.style.display = 'block';
     } else {
-      startRsvpButton.textContent = 'RSVP';
-      guestbookContainer.style.display = 'none';
+      console.log('onAuthStateChanged: No user present');
+      buSignOut.style.display = 'none';
+      buSignIn.style.display = 'block';
+      buManageAccount.style.display = 'none';
     }
   });
 
@@ -99,30 +118,50 @@ async function main() {
     // Prevent the default form redirect
     e.preventDefault();
     // Write a new message to the database collection "guestbook"
-    addDoc(collection(db, 'guestbook'), {
-      text: input.value,
-      timestamp: Date.now(),
-      name: auth.currentUser.displayName,
-      userId: auth.currentUser.uid, 
-    });
-    // clear message input field
-    input.value = '';
-    // Return false to avoid redirect
+    console.log('Writing to db');
+    addDoc(collection(db, 'posts'), {
+      author: auth.currentUser.email,
+      title: title.value,
+      body: body.value,
+      createdAt: new Date(), //firebase.firestore.FieldValue.serverTimestamp(),
+      source: 'Web',
+      uid: auth.currentUser.uid,
+    })
+      .then(() => {
+        console.log('Successfzlly written.');
+      })
+      .catch((error) => {
+        console.log('Adding doc failed: ', error);
+      });
+
     return false;
   });
 
   // Create query for messages
-  const q = query(collection(db, 'guestbook'), orderBy('timestamp', 'desc'));
+  const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
   onSnapshot(q, (snaps) => {
     // Reset page
-    guestbook.innerHTML = '';
+    postSection.innerHTML = '';
     // Loop through documents in database
     snaps.forEach((doc) => {
-      // Create an HTML entry for each document and add it to the chat
-      const entry = document.createElement('p');
-      entry.textContent = doc.data().name + ': ' + doc.data().text;
-      guestbook.appendChild(entry);
+      const entry = document.createElement('div');
+      entry.className = 'entry';
+
+      const line1 = document.createElement('div');
+      line1.textContent = doc.data().title;
+      line1.className = 'title';
+      entry.appendChild(line1);
+
+      const line2 = document.createElement('div');
+      line2.textContent = doc.data().body;
+      line2.className = 'body';
+      entry.appendChild(line2);
+
+      postSection.appendChild(entry);
     });
   });
 }
+
 main();
+title.value = 'Hans';
+body.value = 'Lore Ipsum se...';
